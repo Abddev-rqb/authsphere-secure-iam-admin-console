@@ -1,0 +1,413 @@
+{
+  "info": {
+    "name": "AuthSphere IAM API",
+    "description": "Postman collection for AuthSphere Secure IAM Admin Console. Covers authentication, IAM resources, API key management, sessions, audit logs, and GraphQL dashboard summary.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.access) { pm.collectionVariables.set('access_token', response.access); }",
+                  "if (response.refresh) { pm.collectionVariables.set('refresh_token', response.refresh); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"username\": \"admin\",\\n  \"password\": \"Admin@12345\"\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login", ""]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"refresh\": \"{{refresh_token}}\"\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "refresh", ""]
+            }
+          }
+        },
+        {
+          "name": "Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", ""]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/users/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "users", ""]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"username\": \"postman_user\",\\n  \"email\": \"postman_user@authsphere.dev\",\\n  \"first_name\": \"Postman\",\\n  \"last_name\": \"User\",\\n  \"password\": \"Postman@12345\",\\n  \"is_staff\": false,\\n  \"role_ids\": []\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/iam/users/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "users", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/roles/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "roles", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"Postman Role\",\\n  \"description\": \"Role created from Postman collection\",\\n  \"permission_ids\": []\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/iam/roles/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "roles", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "List Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/permissions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "permissions", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"Postman Permission\",\\n  \"codename\": \"postman.permission\",\\n  \"description\": \"Permission created from Postman collection\"\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/iam/permissions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "permissions", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Keys",
+      "item": [
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/api-keys/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "api-keys", ""]
+            }
+          }
+        },
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"Postman API Key\",\\n  \"user\": 1\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/iam/api-keys/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "api-keys", ""]
+            }
+          }
+        },
+        {
+          "name": "Revoke API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/api-keys/1/revoke/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "api-keys", "1", "revoke", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "List Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/sessions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "sessions", ""]
+            }
+          }
+        },
+        {
+          "name": "Revoke Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/iam/sessions/1/revoke/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "iam", "sessions", "1", "revoke", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "List Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/audit/logs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "audit", "logs", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GraphQL",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"query\": \"{ dashboardSummary { totalUsers totalRoles totalPermissions totalApiKeys totalSessions totalAuditLogs } }\"\\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql/",
+              "host": ["{{base_url}}"],
+              "path": ["graphql", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

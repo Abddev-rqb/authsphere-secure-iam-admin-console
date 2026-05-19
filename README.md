@@ -268,6 +268,16 @@ REST APIs are used for authentication and IAM actions.
 
 GraphQL is used for dashboard analytics.
 
+## Postman Collection
+
+A Postman collection is included for testing AuthSphere APIs manually.
+
+Collection path:
+
+```txt
+postman/AuthSphere.postman_collection.json
+
+
 ### Authentication APIs
 
 ```txt
@@ -606,7 +616,7 @@ Planned improvements:
 
 ---
 
-## Recruiter Summary
+## Summary
 
 AuthSphere demonstrates the ability to build a secure, full-stack admin platform using modern frontend, backend, testing, and deployment practices.
 

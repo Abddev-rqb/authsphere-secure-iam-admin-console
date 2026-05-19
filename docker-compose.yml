@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16
+    container_name: authsphere_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authsphere_db
+      POSTGRES_USER: authsphere_user
+      POSTGRES_PASSWORD: authsphere_password
+    volumes:
+      - authsphere_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: authsphere_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.docker
+    depends_on:
+      - db
+    volumes:
+      - authsphere_static_data:/app/staticfiles
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ""
+        VITE_GRAPHQL_URL: /graphql/
+    container_name: authsphere_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    container_name: authsphere_nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  authsphere_postgres_data:
+  authsphere_static_data:

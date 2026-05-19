@@ -1,0 +1,106 @@
+name: AuthSphere CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: authsphere_db
+          POSTGRES_USER: authsphere_user
+          POSTGRES_PASSWORD: authsphere_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U authsphere_user -d authsphere_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      SECRET_KEY: authsphere-ci-secret-key
+      DEBUG: True
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_NAME: authsphere_db
+      DB_USER: authsphere_user
+      DB_PASSWORD: authsphere_password
+      DB_HOST: localhost
+      DB_PORT: 5432
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      CSRF_TRUSTED_ORIGINS: http://localhost,http://127.0.0.1,http://localhost:5173,http://127.0.0.1:5173
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        run: python manage.py migrate
+
+      - name: Run backend tests
+        run: pytest
+
+  frontend-tests:
+    name: Frontend Tests and Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run frontend unit tests
+        run: npm test -- --runInBand
+
+      - name: Build frontend
+        run: npm run build
+
+  docker-build:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs:
+      - backend-tests
+      - frontend-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Docker env file
+        run: cp backend/.env.docker.example backend/.env.docker
+
+      - name: Build Docker stack
+        run: docker compose build

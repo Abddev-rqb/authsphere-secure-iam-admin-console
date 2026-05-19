@@ -6,6 +6,46 @@ The project simulates the kind of internal IAM platform used by engineering and 
 
 ---
 
+## Product Screenshots
+
+### Login Page
+
+![Login Page](screenshots/login.png)
+
+### IAM Dashboard
+
+![IAM Dashboard](screenshots/dashboard.png)
+
+### User Management
+
+![Users Page](screenshots/users.png)
+
+### Role Management
+
+![Roles Page](screenshots/roles.png)
+
+### Permission Management
+
+![Permissions Page](screenshots/permissions.png)
+
+### API Key Management
+
+![API Keys Page](screenshots/api-keys.png)
+
+### Session Management
+
+![Sessions Page](screenshots/sessions.png)
+
+### Audit Logs
+
+![Audit Logs Page](screenshots/audit-logs.png)
+
+### Swagger API Documentation
+
+![Swagger API Docs](screenshots/swagger-docs.png)
+
+---
+
 ## Why This Project Exists
 
 Modern SaaS platforms need secure access management systems that are reliable, observable, and easy for administrators to operate.
